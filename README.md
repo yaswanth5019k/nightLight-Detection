@@ -9,6 +9,50 @@ This MVP project demonstrates a fast, lightweight AI pipeline to detect objects 
 3. **Detection**: Passes the enhanced image to Ultralytics YOLOv8 (Nano version) for fast and accurate object bounding-box detection.
 4. **Output**: Displays the Original, Enhanced, and Detected images side-by-side in real-time, and saves the output locally.
 
+## Workflow Flowchart
+
+```mermaid
+graph TD
+    %% Define Colors
+    classDef frontend fill:#3b82f6,stroke:#1e3a8a,color:#fff,stroke-width:2px,rx:10px;
+    classDef api fill:#10b981,stroke:#064e3b,color:#fff,stroke-width:2px,rx:10px;
+    classDef cv fill:#8b5cf6,stroke:#4c1d95,color:#fff,stroke-width:2px,rx:10px;
+    classDef ml fill:#f59e0b,stroke:#b45309,color:#fff,stroke-width:2px,rx:10px;
+
+    %% Inputs
+    User["👤 User (Web Browser)"]:::frontend
+    img["🖼️ Upload Dark Image"]
+
+    %% Frontend execution
+    User --> |Drag & Drop| img
+    img --> React["⚛️ React Frontend (Vite)"]:::frontend
+
+    subgraph "Backend AI Server (Python Flask)"
+        direction TB
+        Endpoint["🌐 API: /upload"]:::api
+        Read["📖 cv2.imread(original)"]:::cv
+        Enhance["✨ enhancement.py"]:::cv
+        subgraph "Classical Computer Vision"
+            Gamma["Gamma Correction"]
+            CLAHE["CLAHE Processing"]
+            Noise["Noise Reduction"]
+        end
+        Detect["🤖 detector.py (YOLOv8n)"]:::ml
+        OutputGen["💾 Save Output Locally"]:::api
+
+        Endpoint --> Read
+        Read --> Enhance
+        Enhance -.-> Gamma -.-> CLAHE -.-> Noise
+        Enhance --> |Enhanced Output| Detect
+        Detect --> |Bounding Boxes| OutputGen
+    end
+
+    React --> |POST| Endpoint
+    OutputGen --> |Returns URLs| React
+
+    React --> Screen["💻 Display Side-by-Side: Original, Enhanced, Detected"]:::frontend
+```
+
 ## Project Structure
 
 ```text
